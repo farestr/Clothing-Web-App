@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Admin Login{% endblock %}
+{% block content %}
+
+<section class="panel" style="max-width:520px; margin:40px auto;">
+  <h1 style="margin-bottom:6px;">Admin Login</h1>
+  <div class="muted" style="margin-bottom:16px;">Enter the admin password.</div>
+
+  <form method="post" class="form">
+    <label class="label">Password</label>
+    <input class="input" name="password" type="password" required>
+
+    <div class="row" style="margin-top:14px; gap:10px;">
+      <button class="btn" type="submit">Login</button>
+      <a class="btn btn--ghost" href="{{ url_for('home') }}">Back to shop</a>
+    </div>
+  </form>
+</section>
+
+{% endblock %}

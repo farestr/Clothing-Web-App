@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Employee Panel · Shahd Boutique{% endblock %}
+
+{% block content %}
+
+<style>
+  .tab-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #888;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: #333;
+    border-bottom-color: #333;
+  }
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .badge {
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-left: 5px;
+  }
+</style>
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Employee Panel</h1>
+    <div class="muted">Manage orders and workflow</div>
+  </div>
+  <a class="btn btn--ghost" href="{{ url_for('home') }}">← Shop</a>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="openTab(event, 'tab-pending')">
+    New Pending <span class="badge">{{ pending_orders|length }}</span>
+  </button>
+  <button class="tab-btn" onclick="openTab(event, 'tab-mine')">
+    My Active <span class="badge">{{ my_orders|length }}</span>
+  </button>
+  <button class="tab-btn" onclick="openTab(event, 'tab-completed')">
+    History <span class="badge">{{ completed_orders|length }}</span>
+  </button>
+</div>
+
+<section class="panel">
+
+  <div id="tab-pending" class="tab-content active">
+    {% if pending_orders|length == 0 %}
+      <div class="empty">
+        <h2>No new orders</h2>
+        <p class="muted">Good job! All orders are currently being handled.</p>
+      </div>
+    {% else %}
+      <div class="table">
+        <div class="table__head">
+          <div>ID</div>
+          <div>Customer</div>
+          <div>Date</div>
+          <div>Status</div>
+          <div style="text-align: right">Actions</div>
+        </div>
+        {% for inv in pending_orders %}
+          <div class="table__row">
+            <div>#{{ inv.InvoiceID }}</div>
+            <div>{{ inv.CustomerName }}</div>
+            <div>{{ inv.Date }}</div>
+            <div><span style="color:orange; font-weight:bold;">{{ inv.Status }}</span></div>
+            <div class="row" style="justify-content: flex-end;">
+              <form method="post" action="{{ url_for('employee_accept_invoice', invoice_id=inv.InvoiceID) }}">
+                <button class="btn" type="submit">Accept</button>
+              </form>
+              <a class="btn btn--ghost" href="{{ url_for('my_invoice_view', invoice_id=inv.InvoiceID) }}">View</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div id="tab-mine" class="tab-content">
+    {% if my_orders|length == 0 %}
+      <div class="empty">
+        <h2>No active tasks</h2>
+        <p class="muted">Accept a pending order to see it here.</p>
+      </div>
+    {% else %}
+      <div class="table">
+        <div class="table__head">
+          <div>ID</div>
+          <div>Customer</div>
+          <div>Date</div>
+          <div>Status</div>
+          <div style="text-align: right">Actions</div>
+        </div>
+        {% for inv in my_orders %}
+          <div class="table__row">
+            <div>#{{ inv.InvoiceID }}</div>
+            <div>{{ inv.CustomerName }}</div>
+            <div>{{ inv.Date }}</div>
+            <div>
+              {% if inv.Status == 'Accepted' %}
+                <span style="color: blue; font-weight: bold;">Processing</span>
+              {% elif inv.Status == 'Prepared' %}
+                <span style="color: green; font-weight: bold;">Ready</span>
+              {% endif %}
+            </div>
+            <div class="row" style="justify-content: flex-end;">
+              {% if inv.Status == "Accepted" %}
+                <form method="post" action="{{ url_for('employee_prepare_invoice', invoice_id=inv.InvoiceID) }}">
+                  <button class="btn btn--ghost" type="submit">Mark Prepared</button>
+                </form>
+              {% endif %}
+              {% if inv.Status in ["Accepted", "Prepared"] %}
+                <form method="post" action="{{ url_for('employee_complete_invoice', invoice_id=inv.InvoiceID) }}">
+                  <button class="btn" type="submit">Complete</button>
+                </form>
+              {% endif %}
+              <a class="btn btn--ghost" href="{{ url_for('my_invoice_view', invoice_id=inv.InvoiceID) }}">View</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div id="tab-completed" class="tab-content">
+    {% if completed_orders|length == 0 %}
+      <div class="empty">
+        <h2>No history yet</h2>
+        <p class="muted">Completed orders will appear here.</p>
+      </div>
+    {% else %}
+      <div class="table">
+        <div class="table__head">
+          <div>ID</div>
+          <div>Customer</div>
+          <div>Date</div>
+          <div>Status</div>
+          <div style="text-align: right">Actions</div>
+        </div>
+        {% for inv in completed_orders %}
+          <div class="table__row">
+            <div>#{{ inv.InvoiceID }}</div>
+            <div>{{ inv.CustomerName }}</div>
+            <div>{{ inv.Date }}</div>
+            <div><span style="color: #888; font-weight: bold;">Completed</span></div>
+            <div class="row" style="justify-content: flex-end;">
+              <a class="btn btn--ghost" href="{{ url_for('my_invoice_view', invoice_id=inv.InvoiceID) }}">View Details</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+</section>
+
+<script>
+  function openTab(evt, tabName) {
+    var contents = document.getElementsByClassName("tab-content");
+    for (var i = 0; i < contents.length; i++) {
+      contents[i].className = contents[i].className.replace(" active", "");
+    }
+    var buttons = document.getElementsByClassName("tab-btn");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].className = buttons[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).className += " active";
+    evt.currentTarget.className += " active";
+  }
+</script>
+
+{% endblock %}

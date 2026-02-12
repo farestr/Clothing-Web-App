@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Admin · Employees{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Admin · Employees</h1>
+    <div class="muted">Search and manage employee accounts.</div>
+  </div>
+  <a class="btn" href="{{ url_for('admin_create_employee') }}">+ New Employee</a>
+</div>
+
+<section class="panel" style="margin-bottom: 20px; padding: 20px;">
+  <form method="GET" action="{{ url_for('admin_employees') }}" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+
+    <div style="flex: 1; min-width: 150px;">
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Name</label>
+      <input type="text" name="name" value="{{ request.args.get('name', '') }}" placeholder="Search name..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Position</label>
+      <select name="position" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-width: 140px;">
+        <option value="">All Positions</option>
+        {% for row in positions %}
+          <option value="{{ row.Position }}" {% if request.args.get('position') == row.Position %}selected{% endif %}>
+            {{ row.Position }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Work Place</label>
+      <select name="place" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-width: 140px;">
+        <option value="">All Places</option>
+        {% for row in places %}
+          <option value="{{ row.PlaceID }}" {% if request.args.get('place')|string == row.PlaceID|string %}selected{% endif %}>
+            {{ row.Location }} ({{ row.Type }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Salary Range</label>
+      <div style="display: flex; gap: 5px;">
+        <input type="number" name="min_salary" placeholder="Min" value="{{ request.args.get('min_salary', '') }}" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <span>-</span>
+        <input type="number" name="max_salary" placeholder="Max" value="{{ request.args.get('max_salary', '') }}" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+      </div>
+    </div>
+
+    <div>
+      <button type="submit" class="btn" style="padding: 8px 15px;">Search</button>
+      <a href="{{ url_for('admin_employees') }}" style="font-size: 0.9rem; margin-left: 10px; color: #666; text-decoration: none;">Reset</a>
+    </div>
+
+  </form>
+</section>
+
+<section class="panel">
+  {% if employees|length == 0 %}
+    <div class="empty">No employees found matching your criteria.</div>
+  {% else %}
+    <div class="table">
+      <div class="table__head">
+        <div>ID</div>
+        <div>Name</div>
+        <div>Work Place</div> <div>Email</div>
+        <div>Position</div>
+        <div>Salary</div>
+      </div>
+
+      {% for e in employees %}
+        <div class="table__row">
+          <div>#{{ e.UserID }}</div>
+          <div>{{ e.Name }}</div>
+
+          <div>
+            {% if e.PlaceName %}
+              {{ e.PlaceName }} <small class="muted">({{ e.PlaceType }})</small>
+            {% else %}
+              <span class="muted">—</span>
+            {% endif %}
+          </div>
+
+          <div>{{ e.Email }}</div>
+          <div>{{ e.Position or "—" }}</div>
+          <div>${{ e.Salary }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

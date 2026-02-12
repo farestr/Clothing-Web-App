@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Invoice #{{ invoice.InvoiceID }} · Shahd Boutique{% endblock %}
+{% block content %}
+<div class="page-head page-head--split">
+  <div>
+    <h1>Invoice #{{ invoice.InvoiceID }}</h1>
+
+    <div class="muted">
+      Date: {{ invoice.Date }} ·
+      Total: <strong>${{ "%.2f"|format(invoice.TotalAmount|float) }}</strong>
+      {% if invoice.Status is defined %}
+        · Status: <strong>{{ invoice.Status }}</strong>
+      {% endif %}
+      {% if invoice.EmployeeName is defined and invoice.EmployeeName %}
+        · Employee: <strong>{{ invoice.EmployeeName }}</strong>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    {% if session.get("role") == "Customer" %}
+      <a class="btn btn--ghost" href="{{ url_for('my_invoices') }}">← My invoices</a>
+    {% elif session.get("role") == "Employee" %}
+      <a class="btn btn--ghost" href="{{ url_for('employee_invoices') }}">← Pending orders</a>
+    {% elif session.get("role") == "Admin" %}
+      <a class="btn btn--ghost" href="{{ url_for('admin_invoices') }}">← Admin invoices</a>
+    {% else %}
+      <a class="btn btn--ghost" href="{{ url_for('home') }}">← Shop</a>
+    {% endif %}
+  </div>
+</div>
+
+<section class="panel">
+  <h2 class="panel__title">Items</h2>
+
+  {% if not lines %}
+    <div class="empty">No order lines found for this invoice.</div>
+  {% else %}
+    <div class="table">
+      <div class="table__head">
+        <div>OrderID</div><div>Item</div><div>Variant</div><div>Qty</div><div>Amount</div>
+      </div>
+
+      {% for l in lines %}
+        <div class="table__row">
+          <div>#{{ l.OrderID }}</div>
+          <div>{{ l.ModelName }}</div>
+          <div class="muted small">{{ l.Size }} · {{ l.Color }}</div>
+          <div>{{ l.Quantity }}</div>
+          <div>${{ "%.2f"|format(l.Amount|float) }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div style="margin-top:16px;" class="row">
+    <a class="btn" href="{{ url_for('home') }}">Back to shop</a>
+  </div>
+</section>
+{% endblock %}

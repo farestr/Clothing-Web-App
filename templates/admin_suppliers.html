@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Admin · Suppliers{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <h1>Suppliers</h1>
+  <a class="btn" href="{{ url_for('admin_suppliers_new') }}">+ New Supplier</a>
+</div>
+
+{% if suppliers|length == 0 %}
+  <div class="empty">
+    <h2>No suppliers found</h2>
+    <p>Add your suppliers to assign them to models.</p>
+  </div>
+{% else %}
+  <div class="table-scroll">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th style="width:160px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suppliers %}
+        <tr>
+          <td>{{ s.SupplierID }}</td>
+          <td>
+            <strong>{{ s.Name }}</strong>
+          </td>
+          <td class="muted">{{ s.Email or "—" }}</td>
+          <td class="muted">{{ s.Phone or "—" }}</td>
+          <td class="muted">{{ s.Address or "—" }}</td>
+          <td>
+            <div class="table-actions">
+              <a class="btn btn--small"
+                 href="{{ url_for('admin_suppliers_edit', supplier_id=s.SupplierID) }}">
+                Edit
+              </a>
+              <form method="post"
+                    action="{{ url_for('admin_suppliers_delete', supplier_id=s.SupplierID) }}">
+                <button class="btn btn--small btn--danger"
+                        type="submit"
+                        onclick="return confirm('Delete this supplier?')">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

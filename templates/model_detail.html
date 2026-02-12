@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ model.Name }} · Shahd Boutique{% endblock %}
+{% block content %}
+
+<section class="detail">
+  <div class="detail__media">
+    <img class="detail__img"
+         src="{{ url_for('static', filename='uploads/' + (model.Item_Image or 'default.png')) }}"
+         alt="{{ model.Name|e }}"
+         onerror="this.src='{{ url_for('static', filename='uploads/default.png') }}'">
+  </div>
+
+  <div class="detail__info">
+    <div class="detail__head">
+      <div>
+        <h1 style="margin-bottom:4px;">{{ model.Name }}</h1>
+        <div class="muted small">
+          Model No: <strong>{{ model.ModelNumber }}</strong>
+        </div>
+      </div>
+      <span class="tag">{{ model.Gender or "—" }}</span>
+    </div>
+
+    <p class="muted">{{ model.Description or "" }}</p>
+
+    <div class="detail__price" style="margin-top:10px;">
+      <div class="price big">${{ model.Sell_Price }}</div>
+      {% if session.role in ['Employee', 'Admin'] %}
+    <div class="text-muted">
+        Base price: ${{ model.BasePrice }}
+    </div>
+{% endif %}
+    </div>
+
+    <h3 class="section-title">Choose size & color</h3>
+
+    <div class="variants">
+      {% for it in items %}
+        <div class="variant">
+          <div>
+            <div class="variant__name">
+              <strong>{{ it.Size }}</strong> · {{ it.Color }}
+            </div>
+
+            {% if it.Stock == 0 %}
+              <div class="muted small" style="color:#ff6b6b;">Out of stock</div>
+            {% else %}
+              <div class="muted small">Stock: {{ it.Stock }}</div>
+            {% endif %}
+          </div>
+
+          {% if not session.get("user_id") %}
+            <a class="btn" href="{{ url_for('login') }}">Login to buy</a>
+          {% else %}
+            <form method="post" action="{{ url_for('cart_add') }}">
+              <input type="hidden" name="item_id" value="{{ it.ItemID }}">
+              <button class="btn" type="submit" {% if it.Stock == 0 %}disabled{% endif %}>
+                {% if it.Stock == 0 %}Out of stock{% else %}Add to cart{% endif %}
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <h2>No variants yet</h2>
+          <p class="muted">Admin needs to add sizes/colors for this model.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="detail__actions">
+      <a class="btn btn--ghost" href="{{ url_for('home') }}">← Back to shop</a>
+      <a class="btn" href="{{ url_for('cart_page') }}">Go to cart</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

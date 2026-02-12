@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Admin · New Supply Order{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <h1>New Supply Order</h1>
+  <a class="btn btn--ghost" href="{{ url_for('admin_supply_orders') }}">Back</a>
+</div>
+
+<div class="panel">
+  <form class="form" method="post">
+
+    <div class="form--grid">
+      <div>
+        <label class="label">Supplier *</label>
+        <select class="select" name="SupplierID" required>
+          <option value="">Select supplier</option>
+          {% for s in suppliers %}
+            <option value="{{ s.SupplierID }}">{{ s.Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="label">Place *</label>
+        <select class="select" name="PlaceID" required>
+          <option value="">Select place</option>
+          {% for p in places %}
+            <option value="{{ p.PlaceID }}">{{ p.Type }} · {{ p.Location }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-span">
+        <label class="label">Date</label>
+        <input class="input" type="date" name="Date" value="{{ (date() if false else '') }}">
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:8px 0;">
+
+    <h3 style="margin:0;">Lines</h3>
+    <p class="muted" style="margin:0 0 8px;">Add items (ItemID), quantity, and unit cost.</p>
+
+    {% for i in range(3) %}
+    <div class="form--grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div>
+        <label class="label">ItemID</label>
+        <input class="input" name="ItemID" placeholder="e.g. 1">
+      </div>
+      <div>
+        <label class="label">Quantity</label>
+        <input class="input" name="Quantity" type="number" min="1" placeholder="e.g. 10">
+      </div>
+      <div>
+        <label class="label">UnitCost</label>
+        <input class="input" name="UnitCost" type="number" step="0.01" min="0" placeholder="e.g. 25.00">
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" type="submit">Create Supply Order</button>
+      <a class="btn btn--ghost" href="{{ url_for('admin_supply_orders') }}">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

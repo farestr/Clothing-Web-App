@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Admin · Orders{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h1>Admin · Order Lines</h1>
+  <div class="muted">Each line is one item inside an invoice.</div>
+</div>
+
+<section class="panel">
+  {% if orders|length == 0 %}
+    <div class="empty">No orders yet.</div>
+  {% else %}
+    <div class="table">
+      <div class="table__head">
+        <div>OrderID</div>
+        <div>Invoice</div>
+        <div>Model</div>
+        <div>Variant</div>
+        <div>Amount</div>
+      </div>
+
+      {% for o in orders %}
+        <div class="table__row">
+          <div>#{{ o.OrderID }}</div>
+          <div>#{{ o.InvoiceID }}</div>
+          <div>{{ o.ModelName }}</div>
+          <div>{{ o.Size }} · {{ o.Color }} (x{{ o.Quantity }})</div>
+          <div><strong>${{ o.Amount }}</strong></div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

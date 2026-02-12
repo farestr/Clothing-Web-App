@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Admin · New Employee{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Admin · Create Employee</h1>
+    <div class="muted">This creates a User + Employee row.</div>
+  </div>
+  <a class="btn btn--ghost" href="{{ url_for('admin_employees') }}">← Back</a>
+</div>
+
+<section class="panel" style="max-width:760px;">
+  <h2 class="panel__title">Employee details</h2>
+
+  <form method="post" class="form form--grid">
+    <div>
+      <label class="label">Name</label>
+      <input class="input" name="name" required>
+    </div>
+
+    <div>
+      <label class="label">Email</label>
+      <input class="input" type="email" name="email" required>
+    </div>
+
+    <div>
+      <label class="label">Password</label>
+      <input class="input" type="password" name="password" required>
+    </div>
+
+    <div>
+      <label class="label">Phone</label>
+      <input class="input" name="phone">
+    </div>
+
+    <div>
+      <label class="label">Position</label>
+      <input class="input" name="position" placeholder="Cashier / Worker">
+    </div>
+
+    <div>
+      <label class="label">Salary</label>
+      <input class="input" type="number" step="0.01" name="salary" value="0">
+    </div>
+
+    <div class="col-span">
+      <label class="label">PlaceID</label>
+      <input class="input" type="number" name="place_id" value="1">
+      <div class="muted small" style="margin-top:8px;">Tip: PlaceID=1 is usually the Store.</div>
+    </div>
+
+    <div class="col-span row">
+      <button class="btn" type="submit">Create employee</button>
+      <a class="btn btn--ghost" href="{{ url_for('admin_employees') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+
+{% endblock %}

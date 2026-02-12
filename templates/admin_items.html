@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Admin · Variants{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Admin · Variants</h1>
+    <div class="muted">{{ model.Name }} ({{ model.ModelNumber }})</div>
+  </div>
+  <a class="btn btn--ghost" href="{{ url_for('admin_models') }}">← Back</a>
+</div>
+
+<section class="panel" style="max-width:900px;">
+  <h2 class="panel__title">Add new variant (Item)</h2>
+
+  <form action="{{ url_for('admin_item_add', model_id=model.ModelID) }}" method="post" class="form form--grid">
+    <div>
+      <label class="label">Size</label>
+      <input class="input" name="Size" placeholder="S / M / L" required>
+    </div>
+    <div>
+      <label class="label">Color</label>
+      <input class="input" name="Color" placeholder="Red / Black" required>
+    </div>
+    <div>
+      <label class="label">Stock (Store)</label>
+      <input class="input" name="stock" type="number" min="0" value="0" required>
+    </div>
+    <div class="col-span row" style="gap:10px;">
+      <button class="btn" type="submit">Add variant</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel" style="max-width:900px; margin-top:18px;">
+  <h2 class="panel__title">Existing variants</h2>
+
+  {% if not items %}
+    <p class="muted">No variants yet.</p>
+  {% else %}
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px;">
+      <thead>
+        <tr style="border-bottom: 2px solid #ddd;">
+          <th style="width: 10%; padding: 12px; text-align: left;">ID</th>
+          <th style="width: 15%; padding: 12px; text-align: left;">Size</th>
+          <th style="width: 20%; padding: 12px; text-align: left;">Color</th>
+          <th style="width: 30%; padding: 12px; text-align: left;">Stock (Store)</th>
+          <th style="width: 25%; padding: 12px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr style="border-bottom: 1px solid #eee;">
+
+          <td style="padding: 12px; vertical-align: middle; color: #888;">
+            #{{ it.ItemID }}
+          </td>
+
+          <td style="padding: 12px; vertical-align: middle; font-weight: bold;">
+            {{ it.Size }}
+          </td>
+
+          <td style="padding: 12px; vertical-align: middle;">
+            {{ it.Color }}
+          </td>
+
+          <td style="padding: 12px; vertical-align: middle;">
+            <form action="{{ url_for('admin_item_stock', item_id=it.ItemID) }}" method="post"
+                  style="display: flex; gap: 8px; align-items: center; margin: 0;">
+
+              {% set stock_val = it.Stock if it.Stock is not none else 0 %}
+
+              <input type="number" name="stock" value="{{ stock_val }}" min="0" required
+                     style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+
+              <button type="submit" style="padding: 6px 12px; background: #fff; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                Update
+              </button>
+            </form>
+          </td>
+
+          <td style="padding: 12px; vertical-align: middle; text-align: right;">
+            <form action="{{ url_for('admin_item_delete', item_id=it.ItemID) }}" method="post"
+                  onsubmit="return confirm('Delete this item? This will also delete any Orders associated with it.');" style="margin: 0;">
+
+              <button type="submit" style="padding: 6px 12px; background-color: #ffeaea; color: #d63031; border: 1px solid #fab1a0; border-radius: 4px; cursor: pointer;">
+                Delete
+              </button>
+            </form>
+          </td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</section>
+{% endblock %}

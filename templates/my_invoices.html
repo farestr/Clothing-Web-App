@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}My Invoices · Shahd Boutique{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>My Invoices</h1>
+    <div class="muted">Here are your orders and their status.</div>
+  </div>
+  <a class="btn btn--ghost" href="{{ url_for('home') }}">← Back to shop</a>
+</div>
+
+<section class="panel">
+  {% if invoices|length == 0 %}
+    <div class="empty">
+      <h2>No invoices yet</h2>
+      <p class="muted">Place an order and it will appear here.</p>
+      <a class="btn" href="{{ url_for('home') }}">Go shopping</a>
+    </div>
+  {% else %}
+    <div class="table">
+      <div class="table__head">
+        <div>ID</div>
+        <div>Date</div>
+        <div>Status</div>
+        <div>Employee</div>
+        <div>Total</div>
+        <div>Action</div>
+      </div>
+
+      {% for inv in invoices %}
+        <div class="table__row">
+          <div>#{{ inv.InvoiceID }}</div>
+          <div>{{ inv.Date }}</div>
+
+          <div>
+            {% set st = inv.Status if inv.Status else "Pending" %}
+            {% if st == "Pending" %}
+              <span class="badge badge--pending">Pending</span>
+            {% elif st == "Accepted" %}
+              <span class="badge badge--accepted">Accepted</span>
+            {% elif st == "Prepared" %}
+              <span class="badge badge--prepared">Prepared</span>
+            {% elif st == "Completed" %}
+              <span class="badge badge--completed">Completed</span>
+            {% else %}
+              <span class="badge">{{ st }}</span>
+            {% endif %}
+          </div>
+
+          <div class="muted small">
+            {% if inv.EmployeeName %}
+              {{ inv.EmployeeName }}
+            {% else %}
+              Not assigned yet
+            {% endif %}
+          </div>
+
+          <div><strong>${{ inv.TotalAmount }}</strong></div>
+
+          <div>
+            <a class="btn btn--ghost" href="{{ url_for('my_invoice_view', invoice_id=inv.InvoiceID) }}">
+              View
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

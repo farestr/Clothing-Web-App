@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Checkout · Shahd Boutique{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <div>
+    <h1>Checkout</h1>
+    <div class="muted">
+      {% if session.get("user_id") and session.get("role") == "Customer" %}
+        You are ordering as <strong>{{ session.get("name","Customer") }}</strong>.<br>
+        Your order will be <strong>Pending</strong> until an employee accepts it.
+      {% else %}
+        Please login as a customer to place your order.
+      {% endif %}
+    </div>
+  </div>
+
+  <a class="btn btn--ghost" href="{{ url_for('cart_page') }}">← Back to cart</a>
+</div>
+
+<div class="two-col">
+  <section class="panel">
+    <h2 class="panel__title">Place order</h2>
+
+    {% if not session.get("user_id") %}
+      <div class="empty">
+        <p>You must login before checkout.</p>
+        <a class="btn" href="{{ url_for('login') }}">Login</a>
+        <a class="btn btn--ghost" href="{{ url_for('register') }}">Create account</a>
+      </div>
+
+    {% elif session.get("role") != "Customer" %}
+      <div class="empty">
+        <p>This page is only for customers.</p>
+        <p class="muted small">You are logged in as: <strong>{{ session.get("role") }}</strong></p>
+        <form action="{{ url_for('logout') }}" method="post">
+          <button class="btn" type="submit">Logout</button>
+        </form>
+      </div>
+
+    {% else %}
+      {% set has_out_of_stock = false %}
+      {% for item_id, row in cart.items() %}
+        {% if row.available_stock == 0 %}
+          {% set has_out_of_stock = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% if has_out_of_stock %}
+        <div class="empty">
+          <p style="color:red;">Some items in your cart are out of stock. Please update your cart before checkout.</p>
+          <a class="btn btn--ghost" href="{{ url_for('cart_page') }}">Back to Cart</a>
+        </div>
+      {% else %}
+        <form method="post" class="form">
+          <div class="muted small">
+            ✅ Employee assignment happens later (Employee will accept the order).<br>
+            ✅ Your invoice will appear in <strong>My Invoices</strong>.
+          </div>
+          <button class="btn btn--wide" type="submit">Confirm & Place Order</button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2 class="panel__title">Order summary</h2>
+
+    {% if cart.items()|length == 0 %}
+      <div class="empty">Your cart is empty.</div>
+    {% else %}
+      <div class="summary">
+        {% for item_id, row in cart.items() %}
+          <div class="summary__row"
+               style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);">
+            <div>
+              <div><strong>{{ row.name }}</strong></div>
+              <div class="muted small">Size {{ row.size }} · {{ row.color }} · x{{ row.qty }}</div>
+              {% if row.available_stock == 0 %}
+                <div class="muted small" style="color:red;">Out of stock</div>
+              {% else %}
+                <div class="muted small">Available: {{ row.available_stock }}</div>
+              {% endif %}
+            </div>
+            <div>${{ "%.2f"|format((row.qty|int) * (row.sell_price|float)) }}</div>
+          </div>
+        {% endfor %}
+
+        <div class="summary__total"
+             style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+          <div><strong>Total</strong></div>
+          <div class="price big">${{ "%.2f"|format(cart_total|float) }}</div>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

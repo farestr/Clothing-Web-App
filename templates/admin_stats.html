@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Admin · Stats{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <h1>Admin · Statistics</h1>
+  <div class="muted">Overview of store performance.</div>
+</div>
+
+<section class="grid">
+  <div class="card">
+    <div class="card__body">
+      <h3 class="card__title">Total Sales</h3>
+      <p class="price big">${{ total_sales }}</p>
+      <p class="muted small">Sum of invoice totals</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <h3 class="card__title">Total Profit</h3>
+      <p class="price big" style="color: #3498db;">
+        {% if total_profit %}
+          ${{ "%.2f"|format(total_profit) }}
+        {% else %}
+          $0.00
+        {% endif %}
+      </p>
+      <p class="muted small">Sales - Cost (Price × Qty)</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <h3 class="card__title">Invoices</h3>
+      <p class="price big">{{ total_invoices }}</p>
+      <p class="muted small">Number of invoices</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <h3 class="card__title">Orders</h3>
+      <p class="price big">{{ total_orders }}</p>
+      <p class="muted small">Number of order lines</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__body">
+      <h3 class="card__title">Models</h3>
+      <p class="price big">{{ total_models }}</p>
+      <p class="muted small">Products in catalog</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

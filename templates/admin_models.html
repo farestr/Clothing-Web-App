@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Admin · Models{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Admin · Models</h1>
+    <div class="muted">Create, edit, delete models and manage variants.</div>
+  </div>
+
+  <div class="row" style="gap:10px;">
+    <a class="btn" href="{{ url_for('admin_models_new') }}">➕ New model</a>
+  </div>
+</div>
+
+<section class="panel" style="margin-bottom: 20px; padding: 20px;">
+  <form method="GET" action="{{ url_for('admin_models') }}" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+
+    <div style="flex: 1; min-width: 200px;">
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Search Model</label>
+      <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Name, Description, or ID..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Available At</label>
+      <select name="place_id" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px;">
+        <option value="">All Locations</option>
+        {% for p in places %}
+          <option value="{{ p.PlaceID }}" {% if request.args.get('place_id')|string == p.PlaceID|string %}selected{% endif %}>
+            {{ p.Location }} ({{ p.Type }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Sort By</label>
+      <select name="sort_by" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px;">
+        <option value="">Default (Newest)</option>
+        <option value="quantity_desc" {% if request.args.get('sort_by') == 'quantity_desc' %}selected{% endif %}>Quantity (High to Low)</option>
+        <option value="quantity_asc" {% if request.args.get('sort_by') == 'quantity_asc' %}selected{% endif %}>Quantity (Low to High)</option>
+        <option value="price_high" {% if request.args.get('sort_by') == 'price_high' %}selected{% endif %}>Price (High to Low)</option>
+        <option value="price_low" {% if request.args.get('sort_by') == 'price_low' %}selected{% endif %}>Price (Low to High)</option>
+      </select>
+    </div>
+
+    <div>
+      <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 5px;">Sell Price</label>
+      <div style="display: flex; gap: 5px;">
+        <input type="number" name="min_price" placeholder="Min" value="{{ request.args.get('min_price', '') }}" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <span>-</span>
+        <input type="number" name="max_price" placeholder="Max" value="{{ request.args.get('max_price', '') }}" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+      </div>
+    </div>
+
+    <div>
+      <button type="submit" class="btn btn--primary" style="padding: 8px 15px;">Filter</button>
+      <a href="{{ url_for('admin_models') }}" style="font-size: 0.9rem; margin-left: 10px; color: #666; text-decoration: none;">Clear</a>
+    </div>
+
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel__title">All models</h2>
+
+  {% if not models %}
+    <p class="muted">No models found matching your criteria.</p>
+  {% else %}
+    <div class="grid">
+      {% for m in models %}
+      <article class="card">
+        <div class="card__img">
+          <img
+            src="{{ url_for('static', filename='uploads/' + (m.Item_Image or 'default.png')) }}"
+            alt="{{ m.Name }}"
+            onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='{{ url_for('static', filename='uploads/default.png') }}'}"
+          >
+        </div>
+
+        <div class="card__body">
+          <div class="row" style="justify-content:space-between; width:100%;">
+            <h3 class="card__title">{{ m.Name }}</h3>
+            <span class="tag">{{ m.Gender or "—" }}</span>
+          </div>
+
+          <div class="muted small">Model No: <b>{{ m.ModelNumber }}</b></div>
+          <div class="muted small">{{ m.Description }}</div>
+
+          <div class="row" style="justify-content:space-between; align-items: flex-end; width:100%; margin-top:10px;">
+            <div>
+                <div class="price" style="margin-bottom: 2px;">${{ m.Sell_Price }}</div>
+
+                <div style="font-size: 0.85rem; color: {% if m.TotalQuantity == 0 %}#e74c3c{% else %}#27ae60{% endif %};">
+                    {% if m.TotalQuantity == 0 %}
+                        <b>Out of Stock</b>
+                    {% else %}
+                        {{ m.TotalQuantity }} items in stock
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="muted small">Cost: ${{ m.Price }}</div>
+          </div>
+
+          <div class="row" style="gap:8px; margin-top:12px; flex-wrap:wrap;">
+            <a class="btn btn--ghost" href="{{ url_for('admin_models_edit', model_id=m.ModelID) }}">✏️ Edit</a>
+            <a class="btn btn--ghost" href="{{ url_for('admin_items', model_id=m.ModelID) }}">📦 Variants</a>
+
+            <form action="{{ url_for('admin_models_delete', model_id=m.ModelID) }}" method="post"
+                  onsubmit="return confirm('Delete this model? (Must have no items)')">
+              <button class="btn btn--danger" type="submit">🗑 Delete</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

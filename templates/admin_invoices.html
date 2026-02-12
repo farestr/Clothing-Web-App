@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Admin · Invoices{% endblock %}
+{% block content %}
+
+<div class="page-head page-head--split">
+  <div>
+    <h1>Admin · Invoices</h1>
+    <div class="muted">All invoices in the system.</div>
+  </div>
+</div>
+
+<section class="panel">
+  {% if invoices|length == 0 %}
+    <div class="empty">No invoices yet.</div>
+  {% else %}
+    <div class="table">
+      <div class="table__head">
+        <div>ID</div>
+        <div>Customer</div>
+        <div>Employee</div>
+        <div>Status</div>
+        <div>Total</div>
+      </div>
+
+      {% for inv in invoices %}
+        <div class="table__row">
+          <div>#{{ inv.InvoiceID }}</div>
+          <div>{{ inv.CustomerName }}</div>
+          <div>{{ inv.EmployeeName or "—" }}</div>
+          <div>{{ inv.Status }}</div>
+          <div><strong>${{ inv.TotalAmount }}</strong></div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

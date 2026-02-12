@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Admin · Sales Report{% endblock %}
+{% block content %}
+
+<div class="page-head">
+  <div>
+    <h1>Sales Analytics</h1>
+    <div class="muted">Analyze sold inventory by date and quantity</div>
+  </div>
+</div>
+
+<section class="panel" style="margin-bottom: 20px; padding: 15px;">
+  <form method="GET" action="{{ url_for('admin_selling') }}" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: end;">
+
+    <div style="flex: 1; min-width: 200px;">
+      <label class="muted" style="font-size: 0.85rem;">Search Model</label>
+      <input type="text" name="search" value="{{ search }}" placeholder="Dress name..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div>
+      <label class="muted" style="font-size: 0.85rem;">From</label>
+      <input type="date" name="start_date" value="{{ start_date }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div>
+      <label class="muted" style="font-size: 0.85rem;">To</label>
+      <input type="date" name="end_date" value="{{ end_date }}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div>
+      <label class="muted" style="font-size: 0.85rem;">Sort By</label>
+      <select name="sort_by" style="padding: 9px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+        <option value="quantity_desc" {% if sort_by == 'quantity_desc' %}selected{% endif %}>Highest Sold (Desc)</option>
+        <option value="quantity_asc" {% if sort_by == 'quantity_asc' %}selected{% endif %}>Lowest Sold (Asc)</option>
+        <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Most Recently Sold</option>
+        <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Oldest Sales</option>
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="submit" class="btn btn--primary">Filter</button>
+
+      {% if search or start_date or end_date %}
+      <a href="{{ url_for('admin_selling') }}" class="btn" style="background: transparent; color: #e74c3c; border: 1px solid #e74c3c;">
+        Clear
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  {% if models|length == 0 %}
+    <div style="padding: 40px; text-align: center; color: #888;">
+        <h3>No sales found matching your filters.</h3>
+        <p>Try changing the date range or clearing the search.</p>
+    </div>
+  {% else %}
+  <div class="grid">
+    {% for m in models %}
+    <article class="card">
+      <div class="card__img">
+        <img
+          src="{{ url_for('static', filename='uploads/' + (m.Item_Image or 'default.png')) }}"
+          alt="{{ m.Name }}"
+          onerror="if(!this.dataset.fallback){this.dataset.fallback=1; this.src='{{ url_for('static', filename='uploads/default.png') }}'}"
+        >
+      </div>
+      <div class="card__body">
+        <h3>{{ m.Name }}</h3>
+
+        <div style="font-weight: bold; color: {% if m.SoldCount > 0 %}#2ecc71{% else %}#95a5a6{% endif %}; font-size: 1.1rem; margin-bottom: 5px;">
+           {{ m.SoldCount }} items sold
+        </div>
+
+        <div style="font-size: 0.85rem; color: #888;">
+            {% if m.LastSoldDate %}
+                Last sold: {{ m.LastSoldDate }}
+            {% else %}
+                No sales in this period
+            {% endif %}
+        </div>
+
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

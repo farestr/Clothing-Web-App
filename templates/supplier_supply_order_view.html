@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Supplier · Supply Order #{{ so.SupplyOrderID }}{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <div>
+    <h1>Supply Order #{{ so.SupplyOrderID }}</h1>
+    <div class="row">
+      <span class="tag">Status: {{ so.Status }}</span>
+      <span class="tag">Place: {{ so.PlaceLocation }}</span>
+      <span class="tag">Date: {{ so.Date }}</span>
+      <span class="tag"><b>Total: ${{ "%.2f"|format(so.TotalAmount) }}</b></span>
+    </div>
+  </div>
+
+  {% if so.Status == 'Pending' %}
+  <form method="POST" action="{{ url_for('supplier_supply_order_deliver', so_id=so.SupplyOrderID) }}">
+    <button class="btn">Accept / Deliver</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h2 class="panel__title">Items</h2>
+
+  <div class="table">
+    <div class="table__head" style="grid-template-columns: 1.4fr .7fr .7fr .7fr .7fr;">
+      <div>Model</div>
+      <div>Size</div>
+      <div>Color</div>
+      <div>Qty</div>
+      <div>Cost</div>
+    </div>
+
+    {% for ln in lines %}
+    <div class="table__row" style="grid-template-columns: 1.4fr .7fr .7fr .7fr .7fr;">
+      <div>{{ ln.ModelName }}</div>
+      <div>{{ ln.Size }}</div>
+      <div>{{ ln.Color }}</div>
+      <div>{{ ln.Quantity }}</div>
+      <div>${{ "%.2f"|format(ln.UnitCost) }}</div>
+    </div>
+    {% endfor %}
+  {% if so.Status == 'Pending' %}
+<form method="POST" action="{{ url_for('supplier_supply_order_deliver', so_id=so.SupplyOrderID) }}">
+  <button class="btn btn--success" type="submit"
+          onclick="return confirm('Are you sure you want to deliver this supply order?')">
+    Accept / Deliver
+  </button>
+</form>
+{% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{% block title %}Shahd Boutique{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <span class="brand__logo">🧵</span>
+        <span class="brand__name">Shahd Boutique</span>
+      </a>
+
+      <nav class="nav">
+        <a href="{{ url_for('home') }}" class="nav__link">Shop</a>
+        <a href="{{ url_for('cart_page') }}" class="nav__link">
+          Cart <span class="pill">{{ cart_qty if cart_qty is defined else 0 }}</span>
+        </a>
+
+        {% if session.get("user_id") %}
+          <span class="nav__link" style="opacity:.7; cursor:default;">
+            Hi, {{ session.get("name","User") }} ({{ session.get("role","Customer") }})
+          </span>
+
+          {% if session.get("role") == "Customer" %}
+            <a href="{{ url_for('my_invoices') }}" class="nav__link">My Invoices</a>
+          {% endif %}
+
+          {% if session.get("role") == "Employee" %}
+            <a href="{{ url_for('employee_invoices') }}" class="nav__link">Pending Orders</a>
+          {% endif %}
+
+          {% if session.get("role") == "Admin" %}
+            <a href="{{ url_for('admin_models') }}" class="nav__link">Models</a>
+             <a href="{{ url_for('admin_suppliers') }}" class="nav__link">Suppliers</a>
+              <a href="{{ url_for('admin_supply_orders') }}" class="nav__link">Supply Orders</a>
+
+              <a href="{{ url_for('admin_invoices') }}" class="nav__link">Invoices</a>
+            <a href="{{ url_for('admin_orders') }}" class="nav__link">Orders</a>
+
+            <a href="{{ url_for('admin_selling') }}" class="nav__link">Selling</a>
+
+              <a href="{{ url_for('admin_stats') }}" class="nav__link">Stats</a>
+             <a href="{{ url_for('admin_employees') }}" class="nav__link">Employees</a>
+            {% endif %}
+
+            {% if session.get("role") == "Supplier" %}
+  <a href="{{ url_for('supplier_supply_orders') }}" class="nav__link">Supply Orders</a>
+{% endif %}
+
+
+          <form action="{{ url_for('logout') }}" method="post" style="display:inline;">
+            <button class="nav__link" type="submit"
+              style="background:none;border:none;cursor:pointer;padding:10px 12px;border-radius:999px;">
+              Logout
+            </button>
+          </form>
+
+        {% else %}
+          <a href="{{ url_for('login') }}" class="nav__link">Login</a>
+          <a href="{{ url_for('register') }}" class="nav__link">Register</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash flash--{{ category|e }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div>© {{ 2026 }} Shahd Boutique</div>
+    </div>
+  </footer>
+</body>
+</html>

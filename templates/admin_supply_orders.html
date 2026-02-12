@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Admin · Supply Orders{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <h1>Supply Orders</h1>
+  <a class="btn" href="{{ url_for('admin_supply_orders_new') }}">+ New Supply Order</a>
+</div>
+
+{% if orders|length == 0 %}
+  <div class="empty">
+    <h2>No supply orders</h2>
+    <p>Create a supply order to add stock into a place.</p>
+  </div>
+{% else %}
+  <div class="panel">
+    <div class="table">
+      <div class="table__head" style="grid-template-columns: .7fr 1fr 1.2fr 1.2fr .9fr .9fr;">
+        <div>ID</div>
+        <div>Date</div>
+        <div>Supplier</div>
+        <div>Place</div>
+        <div>Status</div>
+        <div>Total</div>
+      </div>
+
+      {% for o in orders %}
+      <a class="table__row" href="{{ url_for('admin_supply_order_view', so_id=o.SupplyOrderID) }}"
+         style="text-decoration:none;color:inherit;grid-template-columns: .7fr 1fr 1.2fr 1.2fr .9fr .9fr;">
+        <div>#{{ o.SupplyOrderID }}</div>
+        <div>{{ o.Date }}</div>
+        <div>{{ o.SupplierName }}</div>
+        <div>{{ o.PlaceLocation }}</div>
+        <div><span class="tag">{{ o.Status }}</span></div>
+        <div><b>${{ "%.2f"|format(o.TotalAmount) }}</b></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

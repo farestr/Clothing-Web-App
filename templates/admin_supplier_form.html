@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Admin · {{ "Edit Supplier" if supplier else "New Supplier" }}{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <h1>{{ "Edit Supplier" if supplier else "New Supplier" }}</h1>
+  <a class="btn btn--ghost" href="{{ url_for('admin_suppliers') }}">Back</a>
+</div>
+
+<div class="panel">
+  <form class="form" method="post">
+
+    <div>
+      <label class="label">Name *</label>
+      <input class="input"
+             name="Name"
+             required
+             value="{{ supplier.Name if supplier else '' }}">
+    </div>
+
+    <div>
+      <label class="label">Email</label>
+      <input class="input"
+             type="email"
+             name="Email"
+             value="{{ supplier.Email if supplier else '' }}">
+    </div>
+{% if not supplier %}
+  <div>
+    <label class="label">Password *</label>
+    <input class="input"
+           type="password"
+           name="Password"
+           required
+           placeholder="Create a password for this supplier">
+  </div>
+{% endif %}
+
+    <div>
+      <label class="label">Phone</label>
+      <input class="input"
+             name="Phone"
+             value="{{ supplier.Phone if supplier else '' }}">
+    </div>
+
+    <div>
+      <label class="label">Address</label>
+      <input class="input"
+             name="Address"
+             value="{{ supplier.Address if supplier else '' }}">
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" type="submit">
+        {{ "Update Supplier" if supplier else "Create Supplier" }}
+      </button>
+      <a class="btn btn--ghost" href="{{ url_for('admin_suppliers') }}">
+        Cancel
+      </a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

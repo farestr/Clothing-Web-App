@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Cart · Shahd Boutique{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Your cart</h1>
+  <div class="muted">Total items: {{ cart_qty }} · Total: <strong>${{ "%.2f"|format(cart_total|float) }}</strong></div>
+</div>
+
+{% if cart_qty == 0 %}
+  <div class="empty">
+    <h2>Cart is empty</h2>
+    <p class="muted">Add something you like from the shop.</p>
+    <a class="btn" href="{{ url_for('home') }}">Go shopping</a>
+  </div>
+{% else %}
+  <form method="post" action="{{ url_for('cart_update') }}" class="cart">
+    <div class="cart__list">
+      {% for item_id, row in cart.items() %}
+        <div class="cart__row">
+          <img class="cart__img"
+               src="{{ url_for('static', filename='uploads/' + (row.image or 'default.png')) }}"
+               alt="{{ row.name|e }}"
+               onerror="this.src='{{ url_for('static', filename='uploads/default.png') }}'">
+          <div class="cart__info">
+            <div class="cart__title">{{ row.name }}</div>
+            <div class="muted small">Size: {{ row.size }} · Color: {{ row.color }}</div>
+            <div class="muted small">Unit: ${{ "%.2f"|format(row.sell_price|float) }}</div>
+
+            {% if row.available_stock == 0 %}
+              <div class="muted small out-of-stock" style="color:red;">Out of stock</div>
+            {% else %}
+              <div class="muted small">Available: {{ row.available_stock }}</div>
+            {% endif %}
+          </div>
+
+          <div class="cart__qty">
+            <input class="input input--qty"
+                   type="number"
+                   min="0"
+                   max="{{ row.available_stock }}"
+                   name="qty_{{ item_id }}"
+                   value="{{ row.qty }}"
+                   {% if row.available_stock == 0 %} disabled {% endif %}>
+            <div class="muted small">0 removes item</div>
+          </div>
+
+          <div class="cart__subtotal">
+            ${{ "%.2f"|format((row.qty|int) * (row.sell_price|float)) }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="cart__actions">
+      <button class="btn" type="submit">Update cart</button>
+      <a class="btn btn--ghost" href="{{ url_for('home') }}">Continue shopping</a>
+    </div>
+  </form>
+
+  <div class="checkout-bar">
+    <div>
+      <div class="muted small">Total</div>
+      <div class="price big">${{ "%.2f"|format(cart_total|float) }}</div>
+    </div>
+    <div class="checkout-bar__btns">
+      <form method="post" action="{{ url_for('cart_clear') }}">
+        <button class="btn btn--ghost" type="submit">Clear cart</button>
+      </form>
+
+      {% if session.get("user_id") and session.get("role") == "Customer" %}
+        <a class="btn" href="{{ url_for('checkout') }}">Checkout</a>
+      {% else %}
+        <a class="btn" href="{{ url_for('login') }}">Login to checkout</a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

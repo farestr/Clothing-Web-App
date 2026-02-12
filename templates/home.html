@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Shop · Shahd Boutique{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero__text">
+    <h1>Fresh fits, simple checkout.</h1>
+    <p class="muted">
+      Browse models, choose size/color, add to cart, then checkout.
+      {% if not session.get("user_id") %}
+        <br><strong>Note:</strong> You need an account to place an order.
+      {% endif %}
+    </p>
+
+    {% if not session.get("user_id") %}
+      <div class="row" style="margin-top:12px;">
+        <a class="btn" href="{{ url_for('login') }}">Login</a>
+        <a class="btn btn--ghost" href="{{ url_for('register') }}">Create account</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="hero__card">
+    <form method="get" action="{{ url_for('home') }}" class="search">
+      <input class="input" name="q" placeholder="Search name or description…" value="{{ q }}">
+      <select class="select" name="gender">
+        <option value="">All</option>
+        <option value="Male"   {% if gender=="Male" %}selected{% endif %}>Male</option>
+        <option value="Female" {% if gender=="Female" %}selected{% endif %}>Female</option>
+        <option value="Both"   {% if gender=="Both" %}selected{% endif %}>Both</option>
+      </select>
+      <button class="btn" type="submit">Search</button>
+    </form>
+
+    <div class="hero__meta">
+      <div>
+        <span class="muted">Cart total:</span>
+        <strong>${{ cart_total }}</strong>
+      </div>
+      <a class="btn btn--ghost" href="{{ url_for('cart_page') }}">View cart</a>
+    </div>
+
+    <div class="muted small" style="margin-top:10px;">
+      Showing <strong>{{ models|length }}</strong> model(s)
+    </div>
+  </div>
+</section>
+
+<section class="grid">
+  {% for m in models %}
+    <a class="card" href="{{ url_for('model_detail', model_id=m.ModelID) }}">
+      <div class="card__img">
+        <img src="{{ url_for('static', filename='uploads/' + (m.Item_Image or 'default.png')) }}"
+             alt="{{ m.Name|e }}"
+             onerror="this.src='{{ url_for('static', filename='uploads/default.png') }}'">
+      </div>
+
+      <div class="card__body">
+        <div class="card__top">
+          <div>
+            <h3 class="card__title">{{ m.Name }}</h3>
+            <div class="muted small">Model No: <strong>{{ m.ModelNumber }}</strong></div>
+          </div>
+          <span class="tag">{{ m.Gender or "—" }}</span>
+        </div>
+
+        <p class="card__desc">{{ m.Description or "" }}</p>
+
+        <div class="card__bottom">
+          <div class="price">${{ m.Sell_Price }}</div>
+          <div class="muted small">Tap to choose size/color</div>
+        </div>
+      </div>
+    </a>
+  {% else %}
+    <div class="empty">
+      <h2>No models yet</h2>
+      <p class="muted">Ask admin to add products.</p>
+    </div>
+  {% endfor %}
+</section>
+
+{% endblock %}

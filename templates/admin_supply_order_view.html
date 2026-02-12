@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Supply Order #{{ so.SupplyOrderID }}{% endblock %}
+
+{% block content %}
+<div class="page-head page-head--split">
+  <div>
+    <h1>Supply Order #{{ so.SupplyOrderID }}</h1>
+    <div class="muted">
+      Supplier: <strong>{{ so.SupplierName }}</strong> ·
+      Place: <strong>{{ so.PlaceLocation }}</strong> ·
+      Date: <strong>{{ so.Date }}</strong> ·
+      Status: <strong>{{ so.Status }}</strong>
+    </div>
+  </div>
+
+  <a class="btn btn--ghost" href="{{ url_for('admin_supply_orders') }}">Back</a>
+</div>
+
+<div class="panel">
+  <h2 class="panel__title">Lines</h2>
+
+  {% if lines|length == 0 %}
+    <div class="empty">
+      <h2>No lines</h2>
+      <p>This supply order has no items.</p>
+    </div>
+  {% else %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Model</th>
+          <th>Size</th>
+          <th>Color</th>
+          <th>Qty</th>
+          <th>Unit Cost</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in lines %}
+        <tr>
+          <td>{{ l.SupplyOrderLineID }}</td>
+          <td>{{ l.ModelName }}</td>
+          <td>{{ l.Size }}</td>
+          <td>{{ l.Color }}</td>
+          <td>{{ l.Quantity }}</td>
+          <td>{{ l.UnitCost }}</td>
+          <td>{{ l.Amount }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>
+{% endblock %}
